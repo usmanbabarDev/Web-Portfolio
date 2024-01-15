@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Currency Converter</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="currency">
+   <!-- navbar starts -->
+   <header>
+
+    <div id="menu" class="fas fa-bars"></div>
+    <nav class="navbar">
+      <ul>
+        <li><a class="active" href="index.html">Home</a></li>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#education">Education</a></li>
+        <li><a href="index.html#experience">Experience</a></li>
+        <li><a href="index.html#work">Projects</a></li>
+        <li><a href="index.html#skills">Skills</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+  <!-- navbar ends -->
+  <div class="converter-rap">
+    <h1>Currency Converter</h1>
+
+  <div class="input-container">
+    <label for="sourceCurrency">Source Currency:</label>
+    <select id="sourceCurrency">
+      <option value="GBP">GBP (UK pound)</option>
+      <option value="USD">USD (US dollar)</option>
+      <!-- Add other currency options -->
+    </select>
+  </div>
+
+  <div class="input-container">
+    <label for="destinationCurrency">Destination Currency:</label>
+    <select id="destinationCurrency">
+      <option value="MYR">MYR (Malaysian Ringgit)</option>
+      <option value="EUR">EUR (Euro)</option>
+      <!-- Add other currency options -->
+    </select>
+  </div>
+
+  <div class="input-container">
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" placeholder="Enter amount">
+  </div>
+
+  <button onclick="convertCurrency()">Convert</button>
+  <button onclick="resetForm()">Reset</button>
+
+  <div id="result" class="result-container"></div>
+
+  </div>
+  <script>
+    function convertCurrency() {
+      const sourceCurrency = document.getElementById('sourceCurrency').value;
+      const destinationCurrency = document.getElementById('destinationCurrency').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+
+      if (isNaN(amount) || amount <= 0) {
+        document.getElementById('result').innerHTML = '<p>Please enter a valid amount.</p>';
+        return;
+      }
+
+      fetch(`https://www.floatrates.com/daily/${sourceCurrency.toLowerCase()}.json`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const exchangeRate = data[destinationCurrency.toLowerCase()].rate || 0;
+          const currentDate = new Date().toLocaleDateString('en-GB');
+          const lastUpdateDate = data.date || 'N/A';
+
+          const convertedAmount = amount * exchangeRate;
+
+          const resultHTML = `
+            <p>Source currency:<span> ${sourceCurrency}</span></p>
+            <p>Destination currency:<span> ${destinationCurrency}</span></p>
+            <p>Current Exchange Rate:<span> 1 ${sourceCurrency} = ${exchangeRate} ${destinationCurrency}</span></p>
+            <p>Calculation Timestamp:<span> ${currentDate}</span></p>
+            <p>Date of Last Exchange Rate Update:<span> ${lastUpdateDate}</span></p>
+            <p>Amount of transaction:<span> ${amount} ${sourceCurrency} = ${convertedAmount.toFixed(3)} ${destinationCurrency}</span></p>
+          `;
+
+          document.getElementById('result').innerHTML = resultHTML;
+        })
+        .catch(error => {
+          console.error('There was a problem fetching the data:', error);
+          document.getElementById('result').innerHTML = '<p>Failed to fetch data. Please try again later.</p>';
+        });
+    }
+
+    function resetForm() {
+      document.getElementById('sourceCurrency').selectedIndex = 0;
+      document.getElementById('destinationCurrency').selectedIndex = 0;
+      document.getElementById('amount').value = '';
+      document.getElementById('result').innerHTML = '';
+    }
+
+  </script>
+</body>
+</html>
+
+
+
